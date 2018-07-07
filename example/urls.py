@@ -1,7 +1,11 @@
 from rest_framework import routers
-from .views import ResultViewSet, OpenWilsonViewSet, CloseWilsonViewSet
+#from .views import OpenWilsonViewSet, CloseWilsonViewSet
+from .views import ResultOpenWilsonViewSet, ResultCloseWilsonViewSet
 
 
 router = routers.DefaultRouter()
-router.register(r'openwilson', OpenWilsonViewSet)
-router.register(r'closewilson', CloseWilsonViewSet)
+#router.register(r'openwilson', OpenWilsonViewSet)
+router.register(r'openwilson', ResultOpenWilsonViewSet, 'openwilson')
+#router.register(r'closewilson', CloseWilsonViewSet)
+router.register(r'closewilson', ResultCloseWilsonViewSet, 'closewilson')
+#router.register(r'wilson', WilsonViewSet)
