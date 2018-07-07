@@ -50,7 +50,7 @@ class ResultOpenWilsonViewSet(ResultViewSet):
 class ResultCloseWilsonViewSet(ResultViewSet):
     def list(self, request):
         try:
-            queryset = info=CloseWilsonViewSet.as_view({'get': 'list'})(request._request).data
+            queryset = CloseWilsonViewSet.as_view({'get': 'list'})(request._request).data
             self.result = Result(result_code=0, error_code=0, total_num=len(queryset), info=queryset)
 
         except:
