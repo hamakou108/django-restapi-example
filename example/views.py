@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 #from django.shortcuts import render
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
@@ -29,32 +31,39 @@ class CloseWilsonViewSet(viewsets.ModelViewSet):
     filter_fields = ('item_id', )
 
 
-class ResultViewSet(viewsets.ViewSet):
-    pass
+class ResultViewSet(ABC, viewsets.ViewSet):
+    @abstractmethod
+    def getQueryset(self, request):
+        pass
 
+    @abstractmethod
+    def getSerializer(self, result):
+        pass
 
-class ResultOpenWilsonViewSet(ResultViewSet):
     def list(self, request):
         try:
-            queryset = OpenWilsonViewSet.as_view({'get': 'list'})(request._request).data
-            self.result = Result(result_code=0, error_code=0, total_num=len(queryset), info=queryset)
+            queryset = self.getQueryset(request)
+            result = Result(result_code=0, error_code=0, total_num=len(queryset), info=queryset)
             #raise Exception
 
         except:
-            self.result = Result(result_code=-1, error_code=10, total_num=0, info=None)
+            result = Result(result_code=-1, error_code=10, total_num=0, info=None)
 
-        serializer = ResultOpenWilsonSerializer(self.result)
+        serializer = self.getSerializer(result)
         return Response(serializer.data)
+
+
+class ResultOpenWilsonViewSet(ResultViewSet):
+    def getQueryset(self, request):
+        return OpenWilsonViewSet.as_view({'get': 'list'})(request._request).data
+
+    def getSerializer(self, result):
+        return ResultOpenWilsonSerializer(result)
 
 
 class ResultCloseWilsonViewSet(ResultViewSet):
-    def list(self, request):
-        try:
-            queryset = CloseWilsonViewSet.as_view({'get': 'list'})(request._request).data
-            self.result = Result(result_code=0, error_code=0, total_num=len(queryset), info=queryset)
+    def getQueryset(self, request):
+        return CloseWilsonViewSet.as_view({'get': 'list'})(request._request).data
 
-        except:
-            self.result = Result(result_code=-1, error_code=10, total_num=0, info=None)
-
-        serializer = ResultCloseWilsonSerializer(self.result)
-        return Response(serializer.data)
+    def getSerializer(self, result):
+        return ResultCloseWilsonSerializer(result)
