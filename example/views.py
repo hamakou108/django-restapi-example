@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from .models import OpenWilson, CloseWilson
 from .serializer import OpenWilsonSerializer, CloseWilsonSerializer
-from .serializer import ResultOpenWilsonSerializer, ResultCloseWilsonSerializer
+from .serializer import ResultOpenWilsonSerializer, ResultCloseWilsonSerializer, ResultWilsonSerializer
 
 
 class Result(object):
@@ -16,6 +16,7 @@ class Result(object):
         self.result_code = kwargs.get('result_code')
         self.error_code = kwargs.get('error_code')
         self.total_num = kwargs.get('total_num')
+        self.item_id = kwargs.get('item_id')
         self.info = kwargs.get('info')
 
 
@@ -43,11 +44,11 @@ class ResultViewSet(ABC, viewsets.ViewSet):
     def list(self, request):
         try:
             queryset = self.getQueryset(request)
-            result = Result(result_code=0, error_code=0, total_num=len(queryset), info=queryset)
+            result = Result(result_code=0, error_code=0, total_num=len(queryset), item_id=request.GET.get('item_id'), info=queryset)
             #raise Exception
 
         except:
-            result = Result(result_code=-1, error_code=10, total_num=0, info=None)
+            result = Result(result_code=-1, error_code=10, total_num=0, item_id=request.GET.get('item_id'), info=None)
 
         serializer = self.getSerializer(result)
         return Response(serializer.data)
@@ -67,3 +68,18 @@ class ResultCloseWilsonViewSet(ResultViewSet):
 
     def getSerializer(self, result):
         return ResultCloseWilsonSerializer(result)
+
+
+class ResultWilsonViewSet(ResultViewSet):
+    def getQueryset(self, request):
+        open_datas = OpenWilsonViewSet.as_view({'get': 'list'})(request._request).data
+        close_datas = CloseWilsonViewSet.as_view({'get': 'list'})(request._request).data
+        result_datas = []
+        for open_data in open_datas:
+            for close_data in close_datas:
+                if open_data['item_id'] == close_data['item_id']:
+                    result_datas.append({'item_id': open_data['item_id'], 'open_date': open_data['open_date'], 'status': open_data['status'], 'close_date': close_data['close_date'] })
+        return result_datas
+
+    def getSerializer(self, result):
+        return ResultWilsonSerializer(result)
