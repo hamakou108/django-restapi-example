@@ -13,7 +13,8 @@ This is a example implementation of Django REST Framework.
     ```
     $ pipenv install
     ```
-1. Run django server on top of the project directory.
+1. Run django server in your virtual environment.
     ```
+    $ pipenv shell
     $ python manage.py runserver
     ```
