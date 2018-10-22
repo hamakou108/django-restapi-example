@@ -4,12 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = ">=2.0.8"
 djangorestframework = "*"
 django-filter = "*"
 
 [dev-packages]
-ipython = "*"
+pylint = "*"
+"autopep8" = "*"
 
 [requires]
 python_version = "3.6"
